@@ -2,6 +2,7 @@ import express from "express";
 import cors from 'cors';
 import userController from "./controllers/userController.js";
 import { Autheticated } from "./middleware/autheticated.js";
+import 'dotenv/config';
 
 const app = express();
 
