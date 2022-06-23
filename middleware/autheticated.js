@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import auth from '../../Dev-Server/src/config/auth.js';
+import auth from '../config/auth.js';
 
 export const Autheticated = async (req, res, next) => {
     // let authUser = req.headers.Authorization;
