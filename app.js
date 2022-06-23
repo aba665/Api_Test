@@ -11,7 +11,7 @@ app.use(cors());
 
 //Rotas Públicas
 app.get('/', (req, res) =>{
-    res.send(200).json({"Msg": 'For while is working!'});
+    res.status(200).json({"Msg": 'For while is working!'});
 });
 
 app.get('/all', userController.showAll);
@@ -19,12 +19,10 @@ app.get('/all', userController.showAll);
 app.post('/newUser', userController.create);
 
 app.post('/user/login', userController.login);
-//Middleware
-app.use(Autheticated);
 
 //Rotas Privadas
 
-app.post('/data', userController.findUser);
+app.post('/data', Autheticated, userController.findUser);
 
 //Inicialização do servidor
 app.listen(process.env.PORT || 5000);
