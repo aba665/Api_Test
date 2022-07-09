@@ -2,6 +2,7 @@ import User from "../models/userSchema.js";
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import authConfig from '../config/auth.js';
+import dataMovie from "../models/movieSchema.js";
 
 class UserController{
     
@@ -35,7 +36,6 @@ class UserController{
         }
         
         let salt = bcrypt.genSaltSync(14);
-        console.log('salt = ' + salt)
         try {
             
             let user = new User(
@@ -93,6 +93,73 @@ class UserController{
 
     async deleteUser(req, res){
         
+    }
+
+    async likeMovie(req, res){
+    try {
+        let { email, name, description, urlImg  } = await req.body;
+        let movie = {
+            name,
+            description,
+            urlImg
+        }
+        let dataUser = await dataMovie.findOne({ email });
+        
+        if(dataUser != null){
+            const arrayMovie = dataUser.movie; 
+            
+        let testMovie; 
+        arrayMovie.map(doc => {
+            if(doc.name == name){
+                return  testMovie = true;
+            }
+
+            return testMovie = false
+        });
+        
+        if(testMovie == true){
+            return res.status(400).send({message: 'Filme já está na sua lista'});
+        }
+        
+        if(testMovie == false){
+            if(dataUser && dataUser != null && testMovie != true){
+                await dataMovie.updateOne({ email }, {$push: { movie }})
+                return res.status(201).send({message: 'Usuário atualizado com sucesso'});
+            }
+    }
+    }
+
+    if(dataUser == null){
+            let data = new dataMovie(
+            {
+                email,
+                movie: [{
+                name: name, 
+                description: description,
+                urlImg: urlImg
+                }]
+            }
+    )
+    await data.save().then(doc => {
+        return res.status(200).send({ message: 'Dados salvo com sucesso'});
+    }).catch(error => {
+        console.log(error);
+    });
+
+    }
+            
+    } catch (error) {
+        res.sendStatus(error.message);
+    }
+
+    }
+
+    async findFavoriteMovie(req, res){
+        let email = await req.body.email;
+
+        let data = await dataMovie.find({ email });
+        
+        res.json(data);
     }
     
 }

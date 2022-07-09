@@ -22,7 +22,10 @@ app.post('/user/login', userController.login);
 
 //Rotas Privadas
 
+app.get('/movies/favorite/show', Autheticated, userController.findFavoriteMovie);
 app.post('/data', Autheticated, userController.findUser);
+app.put('/movies/favorite', Autheticated, userController.likeMovie);
+
 
 //Inicialização do servidor
 app.listen(process.env.PORT || 5000);
