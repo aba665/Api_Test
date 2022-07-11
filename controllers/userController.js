@@ -72,7 +72,7 @@ class UserController{
         if(!selectedUser){
             return res.sendStatus(404).json('Email or Password incorrect');
         }
-
+        //
         let userVerification = bcrypt.compareSync(password, selectedUser.password);
         
         if(!userVerification){
