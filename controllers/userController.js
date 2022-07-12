@@ -31,7 +31,7 @@ class UserController{
         let { email, password, name, nickname, age } = await req.body
 
         if(!email || !password || !name || !age){
-            return res.sendStatus(401).send("Os dados precisa serem passados!");
+            return res.status(401).json({Message: "Os dados precisa serem passados!"});
 
         }
         
@@ -47,9 +47,9 @@ class UserController{
                     age
                 }
             )
-            console.log(user)
+            
             await user.save().then(doc => {
-                return console.log(doc);
+                return res.status(201);
             }).catch(error => {
                 console.log(error);
             });
@@ -58,25 +58,26 @@ class UserController{
             return res.json({redirection});
             
         } catch (error) {
-            res.sendStatus(error.message);
+            res.status(error.message);
         }
             
         }
 
     async login(req, res){
         let { email, password, token } =  await req.body;
-        
         let selectedUser = await User.findOne({email});
+        
+        if(!selectedUser || selectedUser === null){
+            return res.status(404).json(null);
+        }
+        
         const id = JSON.stringify(selectedUser._id);
         const nickname = JSON.stringify(selectedUser.nickname)
-        if(!selectedUser){
-            return res.sendStatus(404).json('Email or Password incorrect');
-        }
-        //
+        
         let userVerification = bcrypt.compareSync(password, selectedUser.password);
         
         if(!userVerification){
-            return res.sendStatus(404);
+            return res.status(404).json(null);
         }
 
         let userVerificated = true;
@@ -103,28 +104,30 @@ class UserController{
             description,
             urlImg
         }
-        let dataUser = await dataMovie.findOne({ email });
         
+        let dataUser = await dataMovie.findOne({ email });
+
         if(dataUser != null){
             const arrayMovie = dataUser.movie; 
-            
-        let testMovie; 
+  
+        let testMovie = false;
+
         arrayMovie.map(doc => {
-            if(doc.name == name){
+            if(doc.name == name || doc.description == description || doc.urlImg == urlImg){
                 return  testMovie = true;
             }
-
-            return testMovie = false
         });
         
+        let result = null
         if(testMovie == true){
-            return res.status(400).send({message: 'Filme já está na sua lista'});
+            return res.status(400).json({ resultado: result });
         }
+        
         
         if(testMovie == false){
             if(dataUser && dataUser != null && testMovie != true){
                 await dataMovie.updateOne({ email }, {$push: { movie }})
-                return res.status(201).send({message: 'Usuário atualizado com sucesso'});
+                return res.status(201).json({message: 'Usuário atualizado com sucesso'});
             }
     }
     }
@@ -141,7 +144,7 @@ class UserController{
             }
     )
     await data.save().then(doc => {
-        return res.status(200).send({ message: 'Dados salvo com sucesso'});
+        return res.status(200).json({ message: 'Dados salvo com sucesso'});
     }).catch(error => {
         console.log(error);
     });
